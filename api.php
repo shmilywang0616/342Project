@@ -171,7 +171,7 @@ function getCouponListByCategories() {
 		$conn = connectToDatabase();
 		foreach ($categoryIDs as $categoryID) {
 			$stmt = $conn->prepare('SELECT * FROM coupon WHERE category_id = :category_id');
-			if ($stmt->excute(array('category_id' => $categoryID))) {
+			if ($stmt->execute(array('category_id' => $categoryID))) {
 				while ($result = $stmt->fetch()) {
 					if (!in_array($result['id'], $couponIDs)) {
 						$coupons[] = array('id' => $result['id'], 'shopID' => $result['shop_id'], 'categoryID' => $result['category_id'], 'imageURL' => $result['image_url'], 'description' => $result['description'], 'fromDate' => $result['from_date'], 'toDate' => $result['to_date'], 'code' => $result['code'], 'finePrint' => $result['fine_print']);
@@ -189,4 +189,3 @@ function connectToDatabase() {
 	$conn = new PDO('mysql:host=localhost;dbname=cc', 'root', '');
 	return $conn;
 }
-?>
