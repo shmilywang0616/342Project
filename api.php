@@ -26,6 +26,9 @@ switch ($action) {
 	case 'fetch-coupon':
 		exit(json_encode(getCouponDetail()));
 		break;
+	case 'get-coupon-list-by-categories':
+		exit(json_encode(getCouponListByCategories()));
+		break;
 	default:
 		return json_encode(array('success' => false, 'errorMessage' => 'invail request'));
 		break;
@@ -163,8 +166,20 @@ function getCouponListByCategories() {
 		return array('success' => false, 'errorMessage' => 'invaild request');
 	$categoryIDs = $_GET['categoryIDs'];
 	$couponIDs = $_GET['couponIDs'];
+	$coupons = [];
 	try {
-		//qwewqwe
+		$conn = connectToDatabase();
+		foreach ($categoryIDs as $categoryID) {
+			$stmt = $conn->prepare('SELECT * FROM coupon WHERE category_id = :category_id');
+			if ($stmt->excute(array('category_id' => $categoryID))) {
+				while ($result = $stmt->fetch()) {
+					if (!in_array($result['id'], $couponIDs)) {
+						$coupons[] = array('id' => $result['id'], 'shopID' => $result['shop_id'], 'categoryID' => $result['category_id'], 'imageURL' => $result['image_url'], 'description' => $result['description'], 'fromDate' => $result['from_date'], 'toDate' => $result['to_date'], 'code' => $result['code'], 'finePrint' => $result['fine_print']);
+					}
+				}
+			}
+		}
+		return array('success' => true, 'result' => $coupons);
 	} catch (PDOException $e) {
 		return array('success' => false, 'errorMessage' => 'database error');
 	}
